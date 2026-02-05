@@ -13,7 +13,7 @@ const UserDashboard = () => {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
 
-  const { data: profileData, isLoading: isLoadingProfile, refetch: refetchProfile } = useGetProfileQuery();
+  const { data: profileData, isLoading: isLoadingProfile, refetch: refetchProfile } = useGetProfileQuery(undefined);
   const { data: walletData, isLoading: isLoadingWallet } = useGetWalletBalanceQuery();
   const { data: transactionsData, isLoading: isLoadingTransactions } = useGetMyTransactionsQuery({
     page: 1,

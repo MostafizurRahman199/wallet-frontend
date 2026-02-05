@@ -19,7 +19,7 @@ const Profile = () => {
   const profileFormik = useFormik({
     initialValues: {
       name: user?.name || "",
-      phone: user?.phone || "",
+      phone: (user as any)?.phone || "",
     },
     validationSchema: updateProfileSchema,
     enableReinitialize: true,
@@ -119,17 +119,17 @@ const Profile = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Wallet Balance</p>
-                    <p className="font-medium text-green-600">৳{userData?.walletBalance?.toFixed(2) || "0.00"}</p>
+                    <p className="font-medium text-green-600">৳{(userData as any)?.walletBalance?.toFixed(2) || "0.00"}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Account Status</p>
                     <p className="font-medium">
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          userData?.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                          (userData as any)?.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {userData?.isActive ? "Active" : "Blocked"}
+                        {(userData as any)?.isActive ? "Active" : "Blocked"}
                       </span>
                     </p>
                   </div>
@@ -139,10 +139,10 @@ const Profile = () => {
                       <p className="font-medium">
                         <span
                           className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            userData?.isApproved ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                            (userData as any)?.isApproved ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
                           }`}
                         >
-                          {userData?.isApproved ? "Approved" : "Pending Approval"}
+                          {(userData as any)?.isApproved ? "Approved" : "Pending Approval"}
                         </span>
                       </p>
                     </div>
@@ -166,7 +166,7 @@ const Profile = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                     />
                     {profileFormik.touched.name && profileFormik.errors.name && (
-                      <p className="mt-1 text-sm text-red-600">{profileFormik.errors.name}</p>
+                      <p className="mt-1 text-sm text-red-600">{String(profileFormik.errors.name)}</p>
                     )}
                   </div>
 
@@ -184,7 +184,7 @@ const Profile = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                     />
                     {profileFormik.touched.phone && profileFormik.errors.phone && (
-                      <p className="mt-1 text-sm text-red-600">{profileFormik.errors.phone}</p>
+                      <p className="mt-1 text-sm text-red-600">{String(profileFormik.errors.phone)}</p>
                     )}
                   </div>
 
@@ -219,7 +219,7 @@ const Profile = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
                 {passwordFormik.touched.currentPassword && passwordFormik.errors.currentPassword && (
-                  <p className="mt-1 text-sm text-red-600">{passwordFormik.errors.currentPassword}</p>
+                  <p className="mt-1 text-sm text-red-600">{String(passwordFormik.errors.currentPassword)}</p>
                 )}
               </div>
 
@@ -237,7 +237,7 @@ const Profile = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
                 {passwordFormik.touched.newPassword && passwordFormik.errors.newPassword && (
-                  <p className="mt-1 text-sm text-red-600">{passwordFormik.errors.newPassword}</p>
+                  <p className="mt-1 text-sm text-red-600">{String(passwordFormik.errors.newPassword)}</p>
                 )}
               </div>
 
@@ -255,7 +255,7 @@ const Profile = () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
                 {passwordFormik.touched.confirmNewPassword && passwordFormik.errors.confirmNewPassword && (
-                  <p className="mt-1 text-sm text-red-600">{passwordFormik.errors.confirmNewPassword}</p>
+                  <p className="mt-1 text-sm text-red-600">{String(passwordFormik.errors.confirmNewPassword)}</p>
                 )}
               </div>
 

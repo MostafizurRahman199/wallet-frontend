@@ -37,7 +37,10 @@ const Transactions = () => {
   const currentData = activeTab === "transactions" ? transactionsData : commissionsData;
   const isLoading = activeTab === "transactions" ? isLoadingTransactions : isLoadingCommissions;
 
-  const transactions = currentData?.data?.transactions || currentData?.data?.commissions || [];
+  const transactions =
+    activeTab === "transactions" 
+      ? transactionsData?.data?.transactions || [] 
+      : commissionsData?.data?.commissions || [];
   const pagination = currentData?.data?.pagination || {
     page: 1,
     limit: 10,

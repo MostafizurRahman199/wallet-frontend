@@ -9,7 +9,7 @@ export const transactionApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Transaction"],
     }),
-    
+
     getMyCommissions: builder.query({
       query: (params) => ({
         url: "/transactions/my-commissions",
@@ -17,7 +17,7 @@ export const transactionApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Transaction"],
     }),
-    
+
     getAllTransactions: builder.query({
       query: (params) => ({
         url: "/transactions",
@@ -25,7 +25,7 @@ export const transactionApi = apiSlice.injectEndpoints({
       }),
       providesTags: ["Transaction"],
     }),
-    
+
     getTransactionById: builder.query({
       query: (id) => `/transactions/${id}`,
       providesTags: ["Transaction"],
