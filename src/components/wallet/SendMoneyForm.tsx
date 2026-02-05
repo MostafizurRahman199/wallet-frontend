@@ -75,7 +75,7 @@ const SendMoneyForm = ({ onSuccess }: SendMoneyFormProps) => {
             type="tel"
             name="receiverPhone"
             placeholder="01XXXXXXXXX"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="text-black w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             value={formik.values.receiverPhone}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
@@ -97,7 +97,7 @@ const SendMoneyForm = ({ onSuccess }: SendMoneyFormProps) => {
             step="0.01"
             min="10"
             max="50000"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+            className="text-black w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             value={formik.values.amount}
             onChange={(e) => {
               formik.handleChange(e);

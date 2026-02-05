@@ -3,6 +3,10 @@ import { Toaster } from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { selectCurrentUser, selectCurrentToken, selectIsAuthenticated } from "./features/auth/authSlice";
 
+import PaymentSuccess from "./pages/payment/PaymentSuccess";
+import PaymentFailed from "./pages/payment/PaymentFailed";
+import PaymentCancelled from "./pages/payment/PaymentCancelled";
+
 // Layouts
 import PublicLayout from "./layouts/PublicLayout";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -23,7 +27,9 @@ import UserDashboard from "./pages/dashboard/UserDashboard";
 import AgentDashboard from "./pages/dashboard/AgentDashboard";
 import AdminDashboard from "./pages/dashboard/AdminDashboard";
 import Profile from "./pages/dashboard/Profile";
-import WalletPage from "./pages/dashboard/Wallet"; // ADD THIS
+import WalletPage from "./pages/dashboard/Wallet";
+import Transactions from "./pages/dashboard/Transactions";
+import AdminTransactions from "./pages/dashboard/AdminTransactions";
 
 // Protected Route Component
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -32,9 +38,6 @@ function App() {
   const user = useSelector(selectCurrentUser);
   const token = useSelector(selectCurrentToken);
   const isAuthenticated = useSelector(selectIsAuthenticated);
-
-  // You don't have isLoading in your authSlice, so remove it
-  // Or you can add it to your authSlice if needed
 
   return (
     <Router>
@@ -82,6 +85,11 @@ function App() {
             }
           />
 
+          {/* Payment Routes (public - no authentication required) */}
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/failed" element={<PaymentFailed />} />
+          <Route path="/payment/cancelled" element={<PaymentCancelled />} />
+
           {/* Auth Routes (without layout) */}
           <Route
             path="/login"
@@ -105,13 +113,23 @@ function App() {
             }
           />
 
-          {/* User Wallet Route */}
           <Route
             path="/user/wallet"
             element={
               <ProtectedRoute allowedRoles={["user"]}>
                 <DashboardLayout role="user">
                   <WalletPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/user/transactions"
+            element={
+              <ProtectedRoute allowedRoles={["user"]}>
+                <DashboardLayout role="user">
+                  <Transactions />
                 </DashboardLayout>
               </ProtectedRoute>
             }
@@ -129,13 +147,23 @@ function App() {
             }
           />
 
-          {/* Agent Wallet Route */}
           <Route
             path="/agent/wallet"
             element={
               <ProtectedRoute allowedRoles={["agent"]}>
                 <DashboardLayout role="agent">
                   <WalletPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/agent/transactions"
+            element={
+              <ProtectedRoute allowedRoles={["agent"]}>
+                <DashboardLayout role="agent">
+                  <Transactions />
                 </DashboardLayout>
               </ProtectedRoute>
             }
@@ -153,6 +181,17 @@ function App() {
             }
           />
 
+          <Route
+            path="/admin/transactions"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <DashboardLayout role="admin">
+                  <AdminTransactions />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
           {/* Common Protected Routes */}
           <Route
             path="/profile"
@@ -165,13 +204,24 @@ function App() {
             }
           />
 
-          {/* Universal Wallet Route (for easy access) */}
+          {/* Universal Routes (for easy access) */}
           <Route
             path="/wallet"
             element={
               <ProtectedRoute allowedRoles={["user", "agent"]}>
                 <DashboardLayout role={user?.role || "user"}>
                   <WalletPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/transactions"
+            element={
+              <ProtectedRoute allowedRoles={["user", "agent"]}>
+                <DashboardLayout role={user?.role || "user"}>
+                  <Transactions />
                 </DashboardLayout>
               </ProtectedRoute>
             }

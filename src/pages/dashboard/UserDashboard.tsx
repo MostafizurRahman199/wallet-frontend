@@ -1,26 +1,33 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useAppSelector } from "@/app/hooks";
-import { useGetProfileQuery } from "@/api/authApi";
-// import { useGetWalletBalanceQuery } from "@/api/walletApi";
-// import { useGetTransactionsQuery } from "@/api/transactionApi";
+import { Link, useNavigate } from "react-router-dom";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
+import { useGetProfileQuery } from "@/features/auth/authApi";
+import { useGetWalletBalanceQuery } from "@/api/walletApi";
+import { useGetMyTransactionsQuery } from "@/api/transactionApi";
+import { logout } from "@/features/auth/authSlice";
 import toast from "react-hot-toast";
 import { FaWallet, FaExchangeAlt, FaArrowUp, FaArrowDown, FaHistory, FaUser, FaSignOutAlt } from "react-icons/fa";
 
 const UserDashboard = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+
   const { data: profileData, isLoading: isLoadingProfile, refetch: refetchProfile } = useGetProfileQuery();
-//   const { data: walletData, isLoading: isLoadingWallet } = useGetWalletBalanceQuery();
-//   const { data: transactionsData, isLoading: isLoadingTransactions } = useGetTransactionsQuery({ limit: 5 });
+  const { data: walletData, isLoading: isLoadingWallet } = useGetWalletBalanceQuery();
+  const { data: transactionsData, isLoading: isLoadingTransactions } = useGetMyTransactionsQuery({
+    page: 1,
+    limit: 5,
+  });
 
   useEffect(() => {
-    // Refresh profile on dashboard load
     refetchProfile();
   }, [refetchProfile]);
 
   const handleLogout = () => {
-    // Will implement logout later
-    toast.success("Logout functionality coming soon!");
+    dispatch(logout());
+    toast.success("Logged out successfully!");
+    navigate("/login");
   };
 
   if (isLoadingProfile) {
@@ -32,63 +39,35 @@ const UserDashboard = () => {
   }
 
   const userData = profileData?.data || user;
-//   const walletBalance = walletData?.data?.balance || userData?.walletBalance || 0;
-//   const recentTransactions = transactionsData?.data?.items || [];
+  const walletBalance = walletData?.data?.balance || userData?.walletBalance || 0;
+  const recentTransactions = transactionsData?.data?.transactions || [];
+
+  // Calculate stats
+  const calculateStats = () => {
+    if (!recentTransactions.length) {
+      return { totalSent: 0, totalReceived: 0, totalTransactions: 0 };
+    }
+
+    return recentTransactions.reduce(
+      (acc: any, transaction: any) => {
+        acc.totalTransactions++;
+
+        if (transaction.senderId === userData?.id) {
+          acc.totalSent += transaction.amount;
+        } else if (transaction.receiverId === userData?.id) {
+          acc.totalReceived += transaction.amount;
+        }
+
+        return acc;
+      },
+      { totalSent: 0, totalReceived: 0, totalTransactions: 0 },
+    );
+  };
+
+  const stats = calculateStats();
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header/Navbar */}
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <h1 className="text-2xl font-bold text-primary-600">Digital Wallet</h1>
-              </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  to="/user/dashboard"
-                  className="border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  to="/user/transactions"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Transactions
-                </Link>
-                <Link
-                  to="/user/send-money"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Send Money
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <FaUser className="h-5 w-5 text-gray-500" />
-                <span className="text-gray-700 font-medium">{userData?.name}</span>
-              </div>
-              <Link
-                to="/profile"
-                className="px-3 py-2 rounded-md text-sm font-medium text-primary-600 hover:text-primary-800"
-              >
-                Profile
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="flex items-center px-3 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-              >
-                <FaSignOutAlt className="mr-2" />
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {/* Welcome Message */}
         <div className="mb-8">
@@ -102,28 +81,30 @@ const UserDashboard = () => {
             <div>
               <h2 className="text-2xl font-bold">Wallet Balance</h2>
               <p className="text-primary-100 mt-2">Available for transactions</p>
-              {/* <p className="text-5xl font-bold mt-4">৳{walletBalance.toFixed(2)}</p> */}
+              <p className="text-5xl font-bold mt-4">
+                {isLoadingWallet ? <span className="animate-pulse">Loading...</span> : `৳${walletBalance.toFixed(2)}`}
+              </p>
             </div>
             <FaWallet className="h-20 w-20 opacity-20" />
           </div>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link
-              to="/user/send-money"
+              to="/user/wallet"
               className="bg-white text-primary-600 py-3 px-4 rounded-lg text-center font-semibold hover:bg-gray-100 transition-colors"
             >
               Send Money
             </Link>
             <Link
-              to="/user/deposit"
+              to="/user/wallet"
               className="bg-white text-primary-600 py-3 px-4 rounded-lg text-center font-semibold hover:bg-gray-100 transition-colors"
             >
-              Deposit
+              Cash Out
             </Link>
             <Link
-              to="/user/withdraw"
+              to="/user/wallet"
               className="bg-white text-primary-600 py-3 px-4 rounded-lg text-center font-semibold hover:bg-gray-100 transition-colors"
             >
-              Withdraw
+              Top Up
             </Link>
           </div>
         </div>
@@ -137,7 +118,7 @@ const UserDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Total Sent</p>
-                <p className="text-2xl font-bold text-gray-900">৳0.00</p>
+                <p className="text-2xl font-bold text-gray-900">৳{stats.totalSent.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -149,7 +130,7 @@ const UserDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Total Received</p>
-                <p className="text-2xl font-bold text-gray-900">৳0.00</p>
+                <p className="text-2xl font-bold text-gray-900">৳{stats.totalReceived.toFixed(2)}</p>
               </div>
             </div>
           </div>
@@ -161,7 +142,7 @@ const UserDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm text-gray-600">Transactions</p>
-                <p className="text-2xl font-bold text-gray-900">0</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalTransactions}</p>
               </div>
             </div>
           </div>
@@ -179,7 +160,7 @@ const UserDashboard = () => {
             </div>
           </div>
 
-          {/* <div className="overflow-x-auto">
+          <div className="overflow-x-auto">
             {isLoadingTransactions ? (
               <div className="flex justify-center p-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
@@ -200,9 +181,6 @@ const UserDashboard = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -212,42 +190,26 @@ const UserDashboard = () => {
                         {new Date(transaction.createdAt).toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            transaction.type === "send" || transaction.type === "withdraw"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {transaction.type.toUpperCase()}
+                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                          {transaction.type}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <span
-                          className={
-                            transaction.type === "send" || transaction.type === "withdraw"
-                              ? "text-red-600"
-                              : "text-green-600"
-                          }
-                        >
-                          {transaction.type === "send" || transaction.type === "withdraw" ? "-" : "+"}৳
-                          {transaction.amount.toFixed(2)}
-                        </span>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        ৳{transaction.amount.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            transaction.status === "completed"
+                            transaction.status === "COMPLETED"
                               ? "bg-green-100 text-green-800"
-                              : transaction.status === "pending"
+                              : transaction.status === "PENDING"
                                 ? "bg-yellow-100 text-yellow-800"
                                 : "bg-red-100 text-red-800"
                           }`}
                         >
-                          {transaction.status.toUpperCase()}
+                          {transaction.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{transaction.description || "No description"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -259,7 +221,7 @@ const UserDashboard = () => {
                 <p className="text-gray-400 text-sm mt-2">Your transaction history will appear here</p>
               </div>
             )}
-          </div> */}
+          </div>
         </div>
 
         {/* Account Information */}
@@ -268,27 +230,27 @@ const UserDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-600">Account Type</p>
-              <p className="font-medium capitalize">{userData?.role}</p>
+              <p className="font-medium capitalize text-gray-900">{userData?.role}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Phone Number</p>
-              <p className="font-medium">{userData?.phone}</p>
+              <p className="font-medium text-gray-900">{userData?.mobileNumber}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Account Status</p>
               <p className="font-medium">
                 <span
                   className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    userData?.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                    userData?.status === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
                   }`}
                 >
-                  {userData?.isActive ? "Active" : "Blocked"}
+                  {userData?.status}
                 </span>
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Member Since</p>
-              <p className="font-medium">
+              <p className="font-medium text-gray-900">
                 {userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString() : "N/A"}
               </p>
             </div>
