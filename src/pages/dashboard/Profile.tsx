@@ -111,11 +111,11 @@ const Profile = () => {
           {activeTab === "profile" && (
             <div>
               <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Account Overview</h3>
+                <h3 className="text-lg text-black font-semibold mb-2">Account Overview</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-gray-600">Account Type</p>
-                    <p className="font-medium capitalize">{userData?.role}</p>
+                    <p className="font-medium capitalize text-black">{userData?.role}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Wallet Balance</p>
@@ -163,7 +163,7 @@ const Profile = () => {
                       value={profileFormik.values.name}
                       onChange={profileFormik.handleChange}
                       onBlur={profileFormik.handleBlur}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                     />
                     {profileFormik.touched.name && profileFormik.errors.name && (
                       <p className="mt-1 text-sm text-red-600">{profileFormik.errors.name}</p>
@@ -181,7 +181,7 @@ const Profile = () => {
                       value={profileFormik.values.phone}
                       onChange={profileFormik.handleChange}
                       onBlur={profileFormik.handleBlur}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                     />
                     {profileFormik.touched.phone && profileFormik.errors.phone && (
                       <p className="mt-1 text-sm text-red-600">{profileFormik.errors.phone}</p>
@@ -216,7 +216,7 @@ const Profile = () => {
                   value={passwordFormik.values.currentPassword}
                   onChange={passwordFormik.handleChange}
                   onBlur={passwordFormik.handleBlur}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
                 {passwordFormik.touched.currentPassword && passwordFormik.errors.currentPassword && (
                   <p className="mt-1 text-sm text-red-600">{passwordFormik.errors.currentPassword}</p>
@@ -234,7 +234,7 @@ const Profile = () => {
                   value={passwordFormik.values.newPassword}
                   onChange={passwordFormik.handleChange}
                   onBlur={passwordFormik.handleBlur}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
                 {passwordFormik.touched.newPassword && passwordFormik.errors.newPassword && (
                   <p className="mt-1 text-sm text-red-600">{passwordFormik.errors.newPassword}</p>
@@ -252,7 +252,7 @@ const Profile = () => {
                   value={passwordFormik.values.confirmNewPassword}
                   onChange={passwordFormik.handleChange}
                   onBlur={passwordFormik.handleBlur}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
                 {passwordFormik.touched.confirmNewPassword && passwordFormik.errors.confirmNewPassword && (
                   <p className="mt-1 text-sm text-red-600">{passwordFormik.errors.confirmNewPassword}</p>

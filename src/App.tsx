@@ -1,57 +1,192 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useAppSelector } from "./app/hooks";
+import { useSelector } from "react-redux";
+import { selectCurrentUser, selectCurrentToken, selectIsAuthenticated } from "./features/auth/authSlice";
+
+// Layouts
+import PublicLayout from "./layouts/PublicLayout";
+import DashboardLayout from "./layouts/DashboardLayout";
+
+// Public Pages
+import Home from "./pages/public/Home";
+import About from "./pages/public/About";
+import Features from "./pages/public/Features";
+import Contact from "./pages/public/Contact";
+import FAQ from "./pages/public/FAQ";
+
+// Auth Pages
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import Profile from "./pages/dashboard/Profile";
+
+// Dashboard Pages
 import UserDashboard from "./pages/dashboard/UserDashboard";
+import AgentDashboard from "./pages/dashboard/AgentDashboard";
+import AdminDashboard from "./pages/dashboard/AdminDashboard";
+import Profile from "./pages/dashboard/Profile";
+import WalletPage from "./pages/dashboard/Wallet"; // ADD THIS
+
+// Protected Route Component
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const user = useSelector(selectCurrentUser);
+  const token = useSelector(selectCurrentToken);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  // You don't have isLoading in your authSlice, so remove it
+  // Or you can add it to your authSlice if needed
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={isAuthenticated ? <Navigate to={`/${user?.role}/dashboard`} /> : <Login />} />
+          {/* Public Routes with Layout */}
           <Route
-            path="/register"
-            element={isAuthenticated ? <Navigate to={`/${user?.role}/dashboard`} /> : <Register />}
+            path="/"
+            element={
+              <PublicLayout>
+                <Home />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <PublicLayout>
+                <About />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/features"
+            element={
+              <PublicLayout>
+                <Features />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/contact"
+            element={
+              <PublicLayout>
+                <Contact />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/faq"
+            element={
+              <PublicLayout>
+                <FAQ />
+              </PublicLayout>
+            }
           />
 
-          {/* Protected Routes */}
+          {/* Auth Routes (without layout) */}
+          <Route
+            path="/login"
+            element={isAuthenticated && user ? <Navigate to={`/${user.role}/dashboard`} /> : <Login />}
+          />
+          <Route
+            path="/register"
+            element={isAuthenticated && user ? <Navigate to={`/${user.role}/dashboard`} /> : <Register />}
+          />
+
+          {/* Protected Dashboard Routes */}
+          {/* User Routes */}
           <Route
             path="/user/dashboard"
             element={
               <ProtectedRoute allowedRoles={["user"]}>
-                <UserDashboard />
+                <DashboardLayout role="user">
+                  <UserDashboard />
+                </DashboardLayout>
               </ProtectedRoute>
             }
           />
 
+          {/* User Wallet Route */}
+          <Route
+            path="/user/wallet"
+            element={
+              <ProtectedRoute allowedRoles={["user"]}>
+                <DashboardLayout role="user">
+                  <WalletPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Agent Routes */}
+          <Route
+            path="/agent/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["agent"]}>
+                <DashboardLayout role="agent">
+                  <AgentDashboard />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Agent Wallet Route */}
+          <Route
+            path="/agent/wallet"
+            element={
+              <ProtectedRoute allowedRoles={["agent"]}>
+                <DashboardLayout role="agent">
+                  <WalletPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Admin Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <DashboardLayout role="admin">
+                  <AdminDashboard />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Common Protected Routes */}
           <Route
             path="/profile"
             element={
               <ProtectedRoute>
-                <Profile />
+                <DashboardLayout role={user?.role || "user"}>
+                  <Profile />
+                </DashboardLayout>
               </ProtectedRoute>
             }
           />
 
-          {/* Default redirect */}
+          {/* Universal Wallet Route (for easy access) */}
           <Route
-            path="/"
-            element={isAuthenticated ? <Navigate to={`/${user?.role}/dashboard`} /> : <Navigate to="/login" />}
+            path="/wallet"
+            element={
+              <ProtectedRoute allowedRoles={["user", "agent"]}>
+                <DashboardLayout role={user?.role || "user"}>
+                  <WalletPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Redirects */}
+          <Route
+            path="/dashboard"
+            element={<Navigate to={isAuthenticated && user ? `/${user.role}/dashboard` : "/login"} />}
           />
 
           {/* Catch all route */}
-          <Route
-            path="*"
-            element={isAuthenticated ? <Navigate to={`/${user?.role}/dashboard`} /> : <Navigate to="/login" />}
-          />
+          <Route path="*" element={<Navigate to={isAuthenticated && user ? `/${user.role}/dashboard` : "/"} />} />
         </Routes>
+
         <Toaster
           position="top-right"
           toastOptions={{

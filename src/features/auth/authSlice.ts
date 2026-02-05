@@ -1,34 +1,38 @@
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { User } from "@/types";
-import { authApi } from "@/api/authApi";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { RootState } from "@/app/store";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  mobileNumber: string;
+  role: string;
+  status: string;
+}
 
 interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  error: string | null;
 }
 
-// Check if token exists and is valid
-const token = localStorage.getItem("token");
-const initialState: AuthState = {
-  user: null,
-  token: token,
-  isAuthenticated: !!token, // Auto-set authenticated if token exists
-  isLoading: false,
-  error: null,
+// Helper functions for localStorage
+const getUserFromStorage = (): User | null => {
+  try {
+    const userStr = localStorage.getItem("user");
+    return userStr ? JSON.parse(userStr) : null;
+  } catch {
+    return null;
+  }
 };
 
-// Async thunk to fetch user profile on app load
-export const fetchUserProfile = createAsyncThunk("auth/fetchProfile", async (_, { rejectWithValue }) => {
-  try {
-    // This will use the getProfile query from authApi
-    return null; // Will be handled by RTK Query
-  } catch (error: any) {
-    return rejectWithValue(error.message);
-  }
-});
+const initialState: AuthState = {
+  user: getUserFromStorage(),
+  token: localStorage.getItem("token"),
+  isAuthenticated: !!localStorage.getItem("token"),
+  isLoading: false,
+};
 
 const authSlice = createSlice({
   name: "auth",
@@ -38,124 +42,40 @@ const authSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      state.isLoading = false;
       localStorage.setItem("token", action.payload.token);
+      localStorage.setItem("user", JSON.stringify(action.payload.user));
     },
-
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+      state.isLoading = false;
+      localStorage.setItem("user", JSON.stringify(action.payload));
+    },
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+        localStorage.setItem("user", JSON.stringify(state.user));
+      }
+    },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      state.error = null;
+      state.isLoading = false;
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
     },
-
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
-
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    },
-
-    clearError: (state) => {
-      state.error = null;
-    },
-
-    // NEW: Update user info (for profile updates)
-    updateUser: (state, action: PayloadAction<Partial<User>>) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
-      }
-    },
-
-    // NEW: Set user from API response
-    setUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
-      state.isAuthenticated = true;
-    },
-  },
-
-  // Handle extra reducers from RTK Query
-  extraReducers: (builder) => {
-    builder
-      // Handle login success
-      .addMatcher(authApi.endpoints.login.matchFulfilled, (state, { payload }) => {
-        if (payload.success && payload.data) {
-          state.user = payload.data.user;
-          state.token = payload.data.token;
-          state.isAuthenticated = true;
-          state.error = null;
-          localStorage.setItem("token", payload.data.token);
-        }
-      })
-
-      // Handle register success
-      .addMatcher(authApi.endpoints.register.matchFulfilled, (state, { payload }) => {
-        if (payload.success && payload.data) {
-          state.user = payload.data.user;
-          state.token = payload.data.token;
-          state.isAuthenticated = true;
-          state.error = null;
-          localStorage.setItem("token", payload.data.token);
-        }
-      })
-
-      // Handle getProfile success
-      .addMatcher(authApi.endpoints.getProfile.matchFulfilled, (state, { payload }) => {
-        if (payload.success && payload.data) {
-          state.user = payload.data;
-          state.isAuthenticated = true;
-          state.error = null;
-        }
-      })
-
-      // Handle updateProfile success
-      .addMatcher(authApi.endpoints.updateProfile.matchFulfilled, (state, { payload }) => {
-        if (payload.success && payload.data && state.user) {
-          state.user = { ...state.user, ...payload.data };
-        }
-      })
-
-      // Handle auth errors
-      .addMatcher(authApi.endpoints.login.matchRejected, (state, { payload }: any) => {
-        state.error = payload?.data?.message || "Login failed";
-        state.isLoading = false;
-      })
-      .addMatcher(authApi.endpoints.register.matchRejected, (state, { payload }: any) => {
-        state.error = payload?.data?.message || "Registration failed";
-        state.isLoading = false;
-      })
-
-      // Handle pending states
-      .addMatcher(
-        (action) => action.type.endsWith("/pending"),
-        (state) => {
-          state.isLoading = true;
-          state.error = null;
-        },
-      )
-
-      // Handle fulfilled states
-      .addMatcher(
-        (action) => action.type.endsWith("/fulfilled"),
-        (state) => {
-          state.isLoading = false;
-        },
-      )
-
-      // Handle rejected states
-      .addMatcher(
-        (action) => action.type.endsWith("/rejected"),
-        (state, { payload }: any) => {
-          state.isLoading = false;
-          // Don't override error if it's already set from specific matchers
-          if (!state.error) {
-            state.error = payload?.data?.message || "Something went wrong";
-          }
-        },
-      );
   },
 });
 
-export const { setCredentials, logout, setLoading, setError, clearError, updateUser, setUser } = authSlice.actions;
+export const { setCredentials, setUser, updateUser, logout, setLoading } = authSlice.actions;
+
 export default authSlice.reducer;
+
+export const selectCurrentUser = (state: RootState) => state.auth.user;
+export const selectCurrentToken = (state: RootState) => state.auth.token;
+export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;

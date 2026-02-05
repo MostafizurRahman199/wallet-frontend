@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAppSelector } from "@/app/hooks";
 import { Loader } from "@/components/ui/Loader";
+import { useEffect, useState } from "react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,6 +10,16 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, user, isLoading } = useAppSelector((state) => state.auth);
+  const [redirectPath, setRedirectPath] = useState<string>("/login");
+
+  useEffect(() => {
+    // If authenticated but user data is loading, wait
+    if (isAuthenticated && !user && !isLoading) {
+      // Token exists but user data failed to load - clear invalid token
+      localStorage.removeItem("token");
+      setRedirectPath("/login");
+    }
+  }, [isAuthenticated, user, isLoading]);
 
   if (isLoading) {
     return (
