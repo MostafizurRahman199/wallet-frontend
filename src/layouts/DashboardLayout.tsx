@@ -16,6 +16,7 @@ import {
   FaChartBar,
   FaUsers,
   FaCog,
+  FaUserTie,
 } from "react-icons/fa";
 
 interface DashboardLayoutProps {
@@ -64,15 +65,16 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
       ];
     }
 
-    if (role === "admin") {
-      return [
-        ...baseItems,
-        { path: "/admin/users", label: "Manage Users", icon: <FaUsers /> },
-        { path: "/admin/agents", label: "Manage Agents", icon: <FaUsers /> },
-        { path: "/admin/transactions", label: "All Transactions", icon: <FaChartBar /> },
-        { path: "/admin/settings", label: "Settings", icon: <FaCog /> },
-      ];
-    }
+   if (role === "admin") {
+     return [
+       { path: "/admin/dashboard", label: "Dashboard", icon: <FaHome /> },
+       { path: "/admin/users", label: "Manage Users", icon: <FaUsers /> },
+       { path: "/admin/agents", label: "Manage Agents", icon: <FaUserTie /> },
+       { path: "/admin/wallets", label: "Manage Wallets", icon: <FaWallet /> },
+       { path: "/admin/transactions", label: "Transactions", icon: <FaHistory /> },
+       { path: "/profile", label: "Profile", icon: <FaUser /> },
+     ];
+   }
 
     return baseItems;
   };

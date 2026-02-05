@@ -33,6 +33,10 @@ import AdminTransactions from "./pages/dashboard/AdminTransactions";
 
 // Protected Route Component
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminAgents from "./pages/admin/AdminAgents";
+import AdminWallets from "./pages/admin/AdminWallets";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 function App() {
   const user = useSelector(selectCurrentUser);
@@ -187,6 +191,50 @@ function App() {
               <ProtectedRoute allowedRoles={["admin"]}>
                 <DashboardLayout role="admin">
                   <AdminTransactions />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <DashboardLayout role="admin">
+                  <AdminUsers /> {/* Create this component */}
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/agents"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <DashboardLayout role="admin">
+                  <AdminAgents /> {/* Create this component */}
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/wallets"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <DashboardLayout role="admin">
+                  <AdminWallets /> {/* Create this component */}
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <DashboardLayout role="admin">
+                  <AdminSettings /> {/* Create this component */}
                 </DashboardLayout>
               </ProtectedRoute>
             }
