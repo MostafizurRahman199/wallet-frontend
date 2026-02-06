@@ -59,8 +59,6 @@ const DashboardLayout = ({ children, role }: DashboardLayoutProps) => {
     if (role === "agent") {
       return [
         ...baseItems,
-        { path: "/agent/cash-in", label: "Cash In", icon: <FaExchangeAlt /> },
-        { path: "/agent/cash-out", label: "Cash Out", icon: <FaExchangeAlt /> },
         { path: "/agent/customers", label: "Customers", icon: <FaUsers /> },
       ];
     }
