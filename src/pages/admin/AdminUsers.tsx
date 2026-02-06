@@ -489,7 +489,7 @@ const AdminUsers = () => {
             </div>
             <div className="bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-4">
               <p className="text-sm font-medium text-purple-600 mb-1">Showing</p>
-              <p className="text-2xl font-bold text-purple-800">{filteredAndSortedUsers.length} users</p>
+              <p className="text-md md:text-xl font-bold text-purple-800">{filteredAndSortedUsers.length} users</p>
             </div>
           </div>
         </div>
